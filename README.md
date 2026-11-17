@@ -17,6 +17,11 @@ Mahasiswa atau petugas administrasi yang membutuhkan pengelolaan data mahasiswa 
 6. Rekapitulasi jumlah per kelas, jumlah lulus/tidak lulus, dan rata-rata nilai (tersimpan ke `output/rekap_mahasiswa.json`)
 7. Ekspor seluruh data beserta nilai akhir, grade, dan status ke CSV (`output/mahasiswa.csv`)
 
+## Teknologi dan Dependency
+- Python 3.8+ (diuji dengan Python 3.13)
+- Hanya standard library: `json`, `csv`, `logging`, `pathlib`
+- Tidak ada library eksternal, tidak perlu `pip install`
+
 ## Struktur Folder
 ```
 student_management/
@@ -30,7 +35,9 @@ student_management/
 ├── output/mahasiswa.csv         # hasil ekspor (menu 7)
 └── README.md
 ```
-Alur dependensi: `main.py` -> `mahasiswa_service.py` dan `data_manager.py`. Kedua module tersebut tidak saling mengimpor.
+Alur dependensi: `main.py` mengimpor dari package `mahasiswa_app`. `__init__.py` mengekspor function dari `mahasiswa_service.py` dan `data_manager.py`; kedua module tersebut tidak saling mengimpor.
+
+Catatan: fungsi tambah dan hapus tidak mengubah list asli, tetapi mengembalikan list baru. Pesan log (INFO/WARNING/ERROR) tampil di terminal bersama output menu.
 
 ## Cara Menjalankan
 Windows (PowerShell/CMD) atau Linux/macOS, dari dalam folder `student_management`:
@@ -81,5 +88,4 @@ Output CSV `output/mahasiswa.csv`:
 nim,nama,kelas,tugas,uts,uas,nilai_akhir,grade,status
 25.83.1847,Andi Pratama,TK01,80,75,85,80.5,B,Lulus
 ```
-
 Kode dibuat dengan bantuan AI (Claude, Anthropic), kemudian dijalankan, diuji, dan dipahami oleh penulis.
