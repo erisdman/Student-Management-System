@@ -81,18 +81,6 @@ Output CSV `output/mahasiswa.csv`:
 nim,nama,kelas,tugas,uts,uas,nilai_akhir,grade,status
 25.83.1847,Andi Pratama,TK01,80,75,85,80.5,B,Lulus
 ```
-## Pengujian dan Penanganan Error
-| Kondisi | Pesan program |
-| NIM sudah ada | `Gagal menambah data: NIM 25.83.1847 sudah terdaftar.` |
-| Kelas selain TK01/TK02 | `Gagal menambah data: Kelas tidak valid. Pilih TK01 atau TK02.` |
-| Format NIM salah | `Gagal menambah data: Format NIM salah. Gunakan pola 25.83.XXXX ...` |
-| Nama kosong | `Gagal menambah data: Nama tidak boleh kosong.` |
-| NIM tidak ditemukan | `Data dengan NIM ... tidak ditemukan.` |
-| Nilai bukan angka | `Gagal menambah data: Nilai UTS harus berupa angka.` |
-| Nilai di luar 0-100 | `Gagal menambah data: Nilai tugas harus antara 0 sampai 100.` |
-| Menu salah | `Pilihan tidak valid. Masukkan angka 0-7.` |
-| File JSON hilang | `Error: file data tidak ditemukan di ...` |
-| JSON rusak | `Error: file data tidak bisa dibaca. Format JSON rusak di baris ...` |
 
 ## Pengungkapan Bantuan AI
 Kode dibuat dengan bantuan AI (Claude, Anthropic), kemudian dijalankan, diuji, dan dipahami oleh penulis.
