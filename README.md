@@ -94,4 +94,4 @@ Output CSV `output/mahasiswa.csv`:
 nim,nama,kelas,tugas,uts,uas,nilai_akhir,grade,status
 25.83.1847,Andi Pratama,TK01,80,75,85,80.5,B,Lulus
 ```
-Kode dan dokumentasi dibuat dengan bantuan AI (Claude, Anthropic), kemudian dijalankan, diuji, dan dipahami oleh penulis.
+Kode dibuat dengan bantuan AI (Claude, Anthropic), kemudian dijalankan, diuji, dan dipahami oleh penulis.
