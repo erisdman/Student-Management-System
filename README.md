@@ -11,7 +11,7 @@ Mahasiswa atau petugas administrasi yang membutuhkan pengelolaan data mahasiswa 
 ## Fitur Utama
 1. Tampilkan seluruh data mahasiswa
 2. Cari mahasiswa berdasarkan NIM
-3. Filter mahasiswa berdasarkan kelas (TK01/TK02)
+3. Filter mahasiswa berdasarkan kelas (kelas bebas diketik)
 4. Tambah mahasiswa baru beserta nilai tugas, UTS, UAS (tersimpan ke JSON)
 5. Hapus mahasiswa berdasarkan NIM (tersimpan ke JSON)
 6. Rekapitulasi jumlah per kelas, jumlah lulus/tidak lulus, dan rata-rata nilai (tersimpan ke `output/rekap_mahasiswa.json`)
@@ -47,6 +47,12 @@ python main.py        # Windows
 python3 main.py       # Linux/macOS
 ```
 
+## Aturan Data
+- NIM dan kelas **bebas** (tidak harus berpola tertentu), tetapi tidak boleh kosong.
+- NIM harus unik; spasi di awal/akhir NIM dihapus.
+- Kelas disimpan dengan huruf besar (contoh: `ti-3a` menjadi `TI-3A`).
+- Rekap per kelas dibuat otomatis dari kelas yang ada di data.
+
 ## Aturan Nilai
 - Nilai akhir = tugas x 30% + UTS x 30% + UAS x 40%
 - Grade: A (>= 85), B (>= 75), C (di atas 70), D (70 ke bawah)
@@ -56,7 +62,7 @@ python3 main.py       # Linux/macOS
 ## Contoh Penggunaan
 ```
 Pilih menu (0-7): 1
-No  NIM         Nama              Kls    Tugas   UTS   UAS  Akhir  Grade Status
+No  NIM         Nama              Kelas  Tugas   UTS   UAS  Akhir  Grade Status
 -------------------------------------------------------------------------------------
 1   25.83.1847  Andi Pratama      TK01      80    75    85  80.50  B     Lulus
 2   25.83.6203  Siti Rahma        TK02      90    85    88  87.70  A     Lulus
@@ -88,4 +94,4 @@ Output CSV `output/mahasiswa.csv`:
 nim,nama,kelas,tugas,uts,uas,nilai_akhir,grade,status
 25.83.1847,Andi Pratama,TK01,80,75,85,80.5,B,Lulus
 ```
-Kode dibuat dengan bantuan AI (Claude, Anthropic), kemudian dijalankan, diuji, dan dipahami oleh penulis.
+Kode dan dokumentasi dibuat dengan bantuan AI (Claude, Anthropic), kemudian dijalankan, diuji, dan dipahami oleh penulis.

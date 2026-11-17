@@ -1,138 +1,63 @@
-"""Logika data mahasiswa: validasi, pencarian, nilai, dan rekap."""
+"""Membaca dan menyimpan data mahasiswa dalam format JSON dan CSV."""
 
-KELAS_VALID = {"TK01", "TK02"}
-BOBOT = {"tugas": 30, "uts": 30, "uas": 40}
-BATAS_LULUS = 70
+import csv
+import json
+import logging
+from pathlib import Path
 
-class NamaKosongError(ValueError):
-    """Nama mahasiswa belum diisi."""
+logger = logging.getLogger("data_manager")
 
-def validasi_nim(nim):
-    """Memeriksa pola NIM. Return NIM; ValueError jika salah."""
-    if (
-        not isinstance(nim, str)
-        or len(nim) != 10
-        or not nim.startswith("25.83.")
-        or not all(c in "0123456789" for c in nim[6:])
-    ):
-        raise ValueError(
-            "Format NIM salah. Gunakan pola 25.83.XXXX (contoh: 25.83.1234)."
-        )
-    return nim
+BASE_DIR = Path(__file__).resolve().parent.parent
+FILE_DATA = BASE_DIR / "data" / "mahasiswa.json"
+FILE_REKAP = BASE_DIR / "output" / "rekap_mahasiswa.json"
+FILE_CSV = BASE_DIR / "output" / "mahasiswa.csv"
+KOLOM_CSV = ["nim", "nama", "kelas", "tugas", "uts", "uas"]
+KOLOM_WAJIB = {"nim", "nama", "kelas", "tugas", "uts", "uas"}
 
-def validasi_nama(value):
-    """Memeriksa nama tidak kosong. Return nama tanpa spasi tepi."""
-    if not isinstance(value, str) or not value.strip():
-        raise NamaKosongError("Nama tidak boleh kosong.")
-    return value.strip()
 
-def validasi_kelas(value):
-    """Memeriksa kelas TK01 atau TK02. Return kelas."""
-    if value not in KELAS_VALID:
-        raise ValueError("Kelas tidak valid. Pilih TK01 atau TK02.")
-    return value
-
-def validasi_nilai(value, label):
-    """Memeriksa nilai berupa angka 0-100. Return nilai."""
-    if type(value) not in (int, float):
-        raise ValueError(f"Nilai {label} harus berupa angka.")
-    if not 0 <= value <= 100:
-        raise ValueError(f"Nilai {label} harus antara 0 sampai 100.")
-    return value
-
-def ke_angka(teks, label):
-    """Mengubah teks input menjadi angka 0-100. Return int atau float."""
+def baca_json(path):
+    """Membaca file JSON. Return isi file; ValueError jika JSON rusak."""
     try:
-        nilai = float(teks.replace(",", "."))
-    except ValueError:
-        raise ValueError(f"Nilai {label} harus berupa angka.")
-    nilai = validasi_nilai(nilai, label)
-    return int(nilai) if nilai == int(nilai) else nilai
+        with open(path, "r", encoding="utf-8") as file:
+            return json.load(file)
+    except json.JSONDecodeError as error:
+        raise ValueError(
+            f"Format JSON rusak di baris {error.lineno}: {error.msg}"
+        )
 
-def hitung_nilai_akhir(mhs):
-    """Menghitung nilai akhir berbobot (2 desimal). Return float."""
-    total = sum(mhs[nama] * bobot for nama, bobot in BOBOT.items()) / 100
-    return round(total, 2)
 
-def tentukan_grade(nilai_akhir):
-    """Menentukan grade A, B, C, atau D. Return str."""
-    if nilai_akhir >= 85:
-        return "A"
-    if nilai_akhir >= 75:
-        return "B"
-    if nilai_akhir > BATAS_LULUS:
-        return "C"
-    return "D"
+def simpan_json(data, path):
+    """Menyimpan data ke file JSON. Return True jika berhasil."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as file:
+        json.dump(data, file, indent=2, ensure_ascii=False)
+    logger.info("Data disimpan ke %s", path.name)
+    return True
 
-def tentukan_status(nilai_akhir):
-    """Menentukan status kelulusan. Return 'Lulus' atau 'Tidak Lulus'."""
-    return "Lulus" if nilai_akhir > BATAS_LULUS else "Tidak Lulus"
 
-def cari_mahasiswa(data, nim):
-    """Mencari mahasiswa berdasarkan NIM. Return dictionary atau None."""
-    for mhs in data:
-        if mhs["nim"] == nim:
-            return mhs
-    return None
+def muat_data_mahasiswa(path=FILE_DATA):
+    """Membaca data mahasiswa dan memeriksa strukturnya. Return list of dict."""
+    data = baca_json(path)
+    if not isinstance(data, list):
+        raise ValueError("Isi file harus berupa list data mahasiswa.")
+    tidak_valid = any(
+        not isinstance(item, dict) or not KOLOM_WAJIB <= set(item)
+        for item in data
+    )
+    if tidak_valid:
+        raise ValueError(
+            "Setiap data harus berupa dictionary dengan kunci "
+            "nim, nama, kelas, tugas, uts, uas."
+        )
+    return data
 
-def filter_kelas(data, kelas):
-    """Mengambil mahasiswa satu kelas. Return list of dict."""
-    return [mhs for mhs in data if mhs["kelas"] == kelas]
 
-def tambah_mahasiswa(data, nim, nama, kelas, tugas, uts, uas):
-    """Menambah mahasiswa baru tanpa mengubah data asli.
-
-    Return list baru; ValueError jika ada input yang tidak valid.
-    """
-    nim = validasi_nim(nim)
-    nim_terdaftar = {mhs["nim"] for mhs in data}
-    if nim in nim_terdaftar:
-        raise ValueError(f"NIM {nim} sudah terdaftar.")
-    mhs_baru = {
-        "nim": nim,
-        "nama": validasi_nama(nama),
-        "kelas": validasi_kelas(kelas),
-        "tugas": validasi_nilai(tugas, "tugas"),
-        "uts": validasi_nilai(uts, "UTS"),
-        "uas": validasi_nilai(uas, "UAS"),
-    }
-    return [*data, mhs_baru]
-
-def hapus_mahasiswa(data, nim):
-    """Menghapus mahasiswa berdasarkan NIM tanpa mengubah data asli.
-
-    Return list baru; ValueError jika NIM tidak ditemukan.
-    """
-    if cari_mahasiswa(data, nim) is None:
-        raise ValueError(f"Mahasiswa dengan NIM {nim} tidak ditemukan.")
-    return [mhs for mhs in data if mhs["nim"] != nim]
-
-def buat_rekap(data):
-    """Membuat rekap jumlah per kelas, lulus/tidak lulus, dan rata-rata."""
-    jumlah = {
-        kelas: len(filter_kelas(data, kelas))
-        for kelas in sorted(KELAS_VALID)
-    }
-    nilai_akhir = [hitung_nilai_akhir(mhs) for mhs in data]
-    lulus = len([nilai for nilai in nilai_akhir if nilai > BATAS_LULUS])
-    rata_rata = round(sum(nilai_akhir) / len(nilai_akhir), 2) if nilai_akhir else 0
-    return {
-        "total_mahasiswa": len(data),
-        "jumlah_per_kelas": jumlah,
-        "jumlah_lulus": lulus,
-        "jumlah_tidak_lulus": len(data) - lulus,
-        "rata_rata_nilai_akhir": rata_rata,
-    }
-
-def siapkan_baris_ekspor(data):
-    """Menambah nilai akhir, grade, dan status pada tiap data untuk CSV."""
-    baris = []
-    for mhs in data:
-        akhir = hitung_nilai_akhir(mhs)
-        baris.append({
-            **mhs,
-            "nilai_akhir": akhir,
-            "grade": tentukan_grade(akhir),
-            "status": tentukan_status(akhir),
-        })
-    return baris
+def simpan_csv(baris, path, kolom):
+    """Menyimpan list of dict ke file CSV. Return True jika berhasil."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", newline="", encoding="utf-8") as file:
+        writer = csv.DictWriter(file, fieldnames=kolom)
+        writer.writeheader()
+        writer.writerows(baris)
+    logger.info("CSV dibuat: %s", path.name)
+    return True

@@ -26,23 +26,30 @@ from mahasiswa_app import (
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger("main")
 
+
 def tampilkan_tabel(daftar):
     """Mencetak daftar mahasiswa beserta nilai, grade, dan status."""
     if not daftar:
         print("Data kosong.")
         return
+    # lebar kolom mengikuti data terpanjang karena NIM, nama, dan kelas bebas
+    w_nim = max(len("NIM"), *(len(mhs["nim"]) for mhs in daftar)) + 2
+    w_nama = max(len("Nama"), *(len(mhs["nama"]) for mhs in daftar)) + 2
+    w_kelas = max(len("Kelas"), *(len(mhs["kelas"]) for mhs in daftar)) + 2
     print(
-        f"{'No':<4}{'NIM':<12}{'Nama':<18}{'Kls':<6}{'Tugas':>6}{'UTS':>6}"
-        f"{'UAS':>6}{'Akhir':>7}  {'Grade':<6}{'Status'}"
+        f"{'No':<4}{'NIM':<{w_nim}}{'Nama':<{w_nama}}{'Kelas':<{w_kelas}}"
+        f"{'Tugas':>6}{'UTS':>6}{'UAS':>6}{'Akhir':>7}  {'Grade':<6}{'Status'}"
     )
-    print("-" * 85)
+    print("-" * (4 + w_nim + w_nama + w_kelas + 33 + 11))
     for nomor, mhs in enumerate(daftar, start=1):
         akhir = hitung_nilai_akhir(mhs)
         print(
-            f"{nomor:<4}{mhs['nim']:<12}{mhs['nama']:<18}{mhs['kelas']:<6}"
-            f"{mhs['tugas']:>6g}{mhs['uts']:>6g}{mhs['uas']:>6g}{akhir:>7.2f}"
+            f"{nomor:<4}{mhs['nim']:<{w_nim}}{mhs['nama']:<{w_nama}}"
+            f"{mhs['kelas']:<{w_kelas}}{mhs['tugas']:>6g}{mhs['uts']:>6g}"
+            f"{mhs['uas']:>6g}{akhir:>7.2f}"
             f"  {tentukan_grade(akhir):<6}{tentukan_status(akhir)}"
         )
+
 
 def tampilkan_menu():
     """Mencetak menu utama."""
@@ -56,6 +63,7 @@ def tampilkan_menu():
     print("7. Ekspor data ke CSV")
     print("0. Keluar")
 
+
 def menu_cari(data):
     nim = input("Masukkan NIM: ").strip()
     mhs = cari_mahasiswa(data, nim)
@@ -65,22 +73,28 @@ def menu_cari(data):
         return
     tampilkan_tabel([mhs])
 
+
 def menu_filter(data):
-    kelas = input("Masukkan kelas (TK01/TK02): ").strip().upper()
+    kelas = input("Masukkan kelas: ")
     try:
         kelas = validasi_kelas(kelas)
     except ValueError as error:
         logger.warning("Filter ditolak: %s", error)
         print(error)
         return
+    hasil = filter_kelas(data, kelas)
+    if not hasil:
+        print(f"Tidak ada mahasiswa di kelas {kelas}.")
+        return
     print(f"\nMahasiswa kelas {kelas}:")
-    tampilkan_tabel(filter_kelas(data, kelas))
+    tampilkan_tabel(hasil)
+
 
 def menu_tambah(data):
     """Meminta data baru, lalu return list terbaru (data lama jika gagal)."""
-    nim = input("NIM (25.83.XXXX): ").strip()
+    nim = input("NIM: ").strip()
     nama = input("Nama: ").strip()
-    kelas = input("Kelas (TK01/TK02): ").strip().upper()
+    kelas = input("Kelas: ").strip()
     teks_tugas = input("Nilai tugas (0-100): ").strip()
     teks_uts = input("Nilai UTS (0-100): ").strip()
     teks_uas = input("Nilai UAS (0-100): ").strip()
@@ -103,6 +117,7 @@ def menu_tambah(data):
         print(f"Berhasil menambahkan {mhs['nama']} ({mhs['nim']}).")
         return data_baru
 
+
 def menu_hapus(data):
     """Menghapus data berdasarkan NIM, lalu return list terbaru."""
     nim = input("NIM yang akan dihapus: ").strip()
@@ -122,6 +137,7 @@ def menu_hapus(data):
         print(f"Data {mhs['nama']} ({mhs['nim']}) berhasil dihapus.")
         return data_baru
 
+
 def menu_rekap(data):
     rekap = buat_rekap(data)
     print("\nREKAPITULASI MAHASISWA")
@@ -140,6 +156,7 @@ def menu_rekap(data):
         print(f"Gagal mengakses file: {error}")
         return
     print("Rekap disimpan ke output/rekap_mahasiswa.json")
+
 
 def menu_ekspor(data):
     baris = siapkan_baris_ekspor(data)
@@ -179,6 +196,7 @@ def jalankan_menu(data):
             logger.warning("Pilihan menu tidak tersedia: %r", pilihan)
             print("Pilihan tidak valid. Masukkan angka 0-7.")
 
+
 def main():
     """Memuat data lalu menjalankan menu."""
     try:
@@ -198,6 +216,7 @@ def main():
         print("\nProgram dihentikan.")
     finally:
         logger.info("Sesi program selesai")
+
 
 if __name__ == "__main__":
     main()

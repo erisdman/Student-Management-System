@@ -11,7 +11,6 @@ from .data_manager import (
     simpan_json,
 )
 from .mahasiswa_service import (
-    KELAS_VALID,
     NamaKosongError,
     buat_rekap,
     cari_mahasiswa,
