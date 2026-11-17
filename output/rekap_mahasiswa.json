@@ -1,0 +1,10 @@
+{
+  "total_mahasiswa": 2,
+  "jumlah_per_kelas": {
+    "TK01": 2,
+    "TK02": 0
+  },
+  "jumlah_lulus": 1,
+  "jumlah_tidak_lulus": 1,
+  "rata_rata_nilai_akhir": 70.5
+}
