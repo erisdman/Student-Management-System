@@ -1,6 +1,6 @@
 # Sistem Pengelolaan Data Mahasiswa (CLI)
 
-Aplikasi command line berbasis Python untuk UTS Pemrograman Dasar (TK091).
+Aplikasi command line berbasis Python untuk UTS Pemrograman Dasar.
 
 ## Deskripsi dan Tujuan
 Mengelola data mahasiswa secara sederhana: menampilkan, mencari, memfilter, menambah, menghapus, dan membuat rekapitulasi. Setiap mahasiswa punya nilai tugas, UTS, dan UAS; program menghitung nilai akhir, grade, dan status kelulusan otomatis.
