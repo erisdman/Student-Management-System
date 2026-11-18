@@ -1,10 +1,11 @@
 {
-  "total_mahasiswa": 2,
+  "total_mahasiswa": 3,
   "jumlah_per_kelas": {
     "IF03": 1,
+    "SI02": 1,
     "TK02": 1
   },
-  "jumlah_lulus": 2,
+  "jumlah_lulus": 3,
   "jumlah_tidak_lulus": 0,
-  "rata_rata_nilai_akhir": 87.7
+  "rata_rata_nilai_akhir": 86.9
 }
